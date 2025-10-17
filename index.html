@@ -36,9 +36,9 @@
   <script>
     // ===== CONFIGURATION =====
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmFjY291Y2htZWQiLCJhIjoiY2xrMTZwdHllMDRqdjNmcWo1aTQ0c3R4cyJ9.sPeFM-9VpxsoMHaHyWruQA';
-
-  const params = new URLSearchParams(window.location.search);
-    const address = params.get('address') || '10 Avenue Habib Bourguiba, Tunis';
+const params = new URLSearchParams(window.location.search);
+    let address = params.get('address') || '10 Avenue Habib Bourguiba';
+    address += ', Tunisia'; // Force country to Tunisia
 
     // ===== Function to geocode address =====
     async function geocodeAddress(address) {
@@ -49,7 +49,8 @@
         return data.features[0].center; // [lng, lat]
       } else {
         alert("Address not found!");
-        return [10.1658, 36.8065]; // fallback coordinates
+        // Use default Tunis coordinates if address fails
+        return [10.1658, 36.8065];
       }
     }
 
