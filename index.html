@@ -6,9 +6,8 @@
   <title>Mapbox Map</title>
 
   <!-- Mapbox JS + CSS -->
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
-
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet" />
 
   <style>
     html, body {
@@ -36,10 +35,16 @@
   <script>
     // ===== CONFIGURATION =====
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmFjY291Y2htZWQiLCJhIjoiY2xrMTZwdHllMDRqdjNmcWo1aTQ0c3R4cyJ9.sPeFM-9VpxsoMHaHyWruQA';
-// Use exact coordinates for Radès
-    const center = [10.26750, 36.76760]; // [lng, lat]
-    const address = '15 Rue Abdallah Farhat, Radès, Tunisia';
 
+    // Get coordinates from URL params
+    const params = new URLSearchParams(window.location.search);
+    const lat = parseFloat(params.get('lat')) || 36.76760;  // fallback latitude
+    const lng = parseFloat(params.get('lng')) || 10.26750;  // fallback longitude
+    const address = params.get('address') || '15 Rue Abdallah Farhat, Radès, Tunisia';
+
+    const center = [lng, lat];
+
+    // Initialize Mapbox map
     const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v12',
