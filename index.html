@@ -37,28 +37,38 @@
     // ===== CONFIGURATION =====
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmFjY291Y2htZWQiLCJhIjoiY2xrMTZwdHllMDRqdjNmcWo1aTQ0c3R4cyJ9.sPeFM-9VpxsoMHaHyWruQA';
 
-    // ===== Read URL Params =====
-    const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat')) || 36.8065; // Default Tunis
-    const lng = parseFloat(params.get('lng')) || 10.1658;
-    const title = params.get('title') || 'Your Venue';
+  const params = new URLSearchParams(window.location.search);
+    const address = params.get('address') || '10 Avenue Habib Bourguiba, Tunis';
 
-    // ===== Create Map =====
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [lng, lat],
-      zoom: 13
+    // ===== Function to geocode address =====
+    async function geocodeAddress(address) {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        return data.features[0].center; // [lng, lat]
+      } else {
+        alert("Address not found!");
+        return [10.1658, 36.8065]; // fallback coordinates
+      }
+    }
+
+    // ===== Initialize map after geocoding =====
+    geocodeAddress(address).then(center => {
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: center,
+        zoom: 13
+      });
+
+      new mapboxgl.Marker({ color: 'red' })
+        .setLngLat(center)
+        .setPopup(new mapboxgl.Popup().setText(address))
+        .addTo(map);
+
+      map.addControl(new mapboxgl.NavigationControl());
     });
-
-    // ===== Add Marker =====
-    new mapboxgl.Marker({ color: 'red' })
-      .setLngLat([lng, lat])
-      .setPopup(new mapboxgl.Popup().setText(title))
-      .addTo(map);
-
-    // Add zoom and rotation controls
-    map.addControl(new mapboxgl.NavigationControl());
   </script>
 </body>
 </html>
