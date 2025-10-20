@@ -33,27 +33,24 @@
   <div id="map"></div>
 
   <script>
-    // ===== CONFIGURATION =====
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmFjY291Y2htZWQiLCJhIjoiY2xrMTZwdHllMDRqdjNmcWo1aTQ0c3R4cyJ9.sPeFM-9VpxsoMHaHyWruQA';
 
-    // Get address from URL
     const params = new URLSearchParams(window.location.search);
     const address = params.get('address');
 
     if (!address) {
       alert('No address provided in URL!');
     } else {
-      // Initialize map with temporary center (will update after geocoding)
       const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [10.26750, 36.76760], // temporary center
+        center: [10.16750, 36.76760], // temporary center
         zoom: 16
       });
       map.addControl(new mapboxgl.NavigationControl());
 
-      // Geocode the address
-      fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`)
+      // Geocode the address only in Tunisia
+      fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?country=tn&access_token=${mapboxgl.accessToken}`)
         .then(response => response.json())
         .then(data => {
           if (data.features && data.features.length > 0) {
@@ -66,7 +63,7 @@
               .setPopup(new mapboxgl.Popup().setText(address))
               .addTo(map);
           } else {
-            alert('Address not found!');
+            alert('Address not found in Tunisia!');
           }
         })
         .catch(err => console.error('Geocoding error:', err));
