@@ -36,28 +36,41 @@
     // ===== CONFIGURATION =====
     mapboxgl.accessToken = 'pk.eyJ1IjoiYmFjY291Y2htZWQiLCJhIjoiY2xrMTZwdHllMDRqdjNmcWo1aTQ0c3R4cyJ9.sPeFM-9VpxsoMHaHyWruQA';
 
-    // Get coordinates from URL params
+    // Get address from URL
     const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat')) || 36.76760;  // fallback latitude
-    const lng = parseFloat(params.get('lng')) || 10.26750;  // fallback longitude
-    const address = params.get('address') || '15 Rue Abdallah Farhat, Radès, Tunisia';
+    const address = params.get('address');
 
-    const center = [lng, lat];
+    if (!address) {
+      alert('No address provided in URL!');
+    } else {
+      // Initialize map with temporary center (will update after geocoding)
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [10.26750, 36.76760], // temporary center
+        zoom: 16
+      });
+      map.addControl(new mapboxgl.NavigationControl());
 
-    // Initialize Mapbox map
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: center,
-      zoom: 16
-    });
+      // Geocode the address
+      fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.features && data.features.length > 0) {
+            const [lng, lat] = data.features[0].center;
 
-    new mapboxgl.Marker({ color: 'red' })
-      .setLngLat(center)
-      .setPopup(new mapboxgl.Popup().setText(address))
-      .addTo(map);
+            map.setCenter([lng, lat]);
 
-    map.addControl(new mapboxgl.NavigationControl());
+            new mapboxgl.Marker({ color: 'red' })
+              .setLngLat([lng, lat])
+              .setPopup(new mapboxgl.Popup().setText(address))
+              .addTo(map);
+          } else {
+            alert('Address not found!');
+          }
+        })
+        .catch(err => console.error('Geocoding error:', err));
+    }
   </script>
 </body>
 </html>
